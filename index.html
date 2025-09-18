@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unidesk - Demo UI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+:root{
+  --bg: #f7f8f9;
+  --panel: #ffffff;
+  --muted: #6b7280;
+  --accent: #111827;
+  --input-bg: #f1f5f9;
+  --bubble-user: #e6eefc;
+  --bubble-bot: #e9edf2;
+  --primary: #111827;
+  --glass: rgba(17,24,39,0.06);
+  --sidebar-bg: #f3f4f6;
+  --main-bg: #ffffff;
+}
+[data-theme="dark"]{
+  --bg: #0f1720;
+  --panel: #0b1220;
+  --muted: #9aa3ad;
+  --accent: #e6eef6;
+  --input-bg: #0b1420;
+  --bubble-user: #2b3944;
+  --bubble-bot: #222a33;
+  --primary: #e6eef6;
+  --glass: rgba(255,255,255,0.03);
+  --sidebar-bg: #080d15;
+  --main-bg: #121a26;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+body{background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+
+.app{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: auto 1fr;
+  width:100%;
+  gap:0;
+  min-height:100vh;
+}
+
+header{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:18px 22px;
+  border-bottom:1px solid rgba(0,0,0,0.04);
+  background:linear-gradient(180deg, transparent, rgba(0,0,0,0.02));
+}
+[data-theme="dark"] header{border-bottom-color: rgba(255,255,255,0.03)}
+
+.hamburger{
+  width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:var(--glass);cursor:pointer;border:none;
+}
+.title{font-weight:700;font-size:18px}
+
+.header-right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.theme-toggle{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--glass);border:none;cursor:pointer}
+
+aside{
+  padding:18px;
+  background: var(--sidebar-bg);
+  border-right:1px solid rgba(0,0,0,0.04);
+  height:calc(100vh - 72px);
+  overflow:auto;
+}
+[data-theme="dark"] aside{border-right-color: rgba(255,255,255,0.02)}
+
+.new-chat{
+  display:block;padding:14px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);
+  background:var(--panel);text-align:center;color:var(--primary);font-weight:600;cursor:pointer;
+}
+[data-theme="dark"] .new-chat{border-color: rgba(255,255,255,0.03)}
+.chats{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+.chat-item{padding:12px;border-radius:10px;background:var(--glass);cursor:pointer}
+.chat-item .title{font-weight:600}
+.chat-item .meta{font-size:12px;color:var(--muted);margin-top:6px}
+
+main{
+  padding:36px 48px;
+  position:relative;
+  overflow:auto;
+  height:calc(100vh - 72px);
+  background: var(--main-bg);
+}
+
+.messages{
+  display:flex;flex-direction:column;gap:18px;margin-top:8vh;padding:12px 8px;
+  max-width:1000px;margin-left:auto;margin-right:auto;
+}
+.msg-row{display:flex;gap:12px}
+.msg-user{margin-left:auto;align-items:flex-end}
+.bubble{
+  max-width:65%;padding:16px;border-radius:16px;background:var(--bubble-bot);color:var(--primary);
+  box-shadow:0 6px 18px rgba(0,0,0,0.03);
+}
+.bubble.user{background:var(--bubble-user);border-radius:16px 16px 8px 16px}
+.bubble.bot{border-radius:8px 16px 16px 16px}
+.bubble p{margin:0;color:var(--primary);line-height:1.5}
+.time{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* input bar */
+/* input bar – light mode */
+.input-bar {
+  position: fixed;
+  left: 320px;  /* space from sidebar */
+  right: 40px;  /* space from window edge */
+  bottom: 28px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: var(--panel);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  gap: 12px;
+}
+
+/* input bar – dark mode (same gap but different colors) */
+[data-theme="dark"] .input-bar {
+  left: 320px;  /* same gap as light mode */
+  right: 40px;  /* same gap as light mode */
+  border-color: rgba(255, 255, 255, 0.03);
+  background: var(--glass);
+  box-shadow: none;
+}
+
+
+/* wrapper to put mic inside */
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.input-wrapper .input {
+  width: 100%;
+  padding: 16px 40px 16px 16px; /* room on the right for mic */
+  border-radius: 12px;
+  border: none;
+  background: var(--input-bg);
+  outline: none;
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.mic-inside {
+  position: absolute;
+  right: 8px; /* mic on right inside */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+
+
+
+.mic-inside i {
+  font-size: 18px;
+  color: var(--primary);
+}
+
+.send-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: var(--glass);
+  cursor: pointer;
+}
+
+.send-btn i {
+  font-size: 18px;
+  color: var(--primary); /* auto changes with theme */
+}
+
+[data-theme="dark"] .send-btn i #themeIcon{
+  color: #fff; /* pure white in dark mode */
+}
+
+
+@media (max-width:880px){
+  .app{grid-template-columns: 1fr;grid-template-rows:auto 1fr}
+  aside{position:fixed;left:-320px;top:72px;bottom:0;width:280px;z-index:60;box-shadow: 6px 0 24px rgba(2,6,23,0.4);transition:left .28s ease}
+  aside.open{left:0}
+  .input-bar{left:20px;right:20px}
+  header{padding:12px 16px}
+  .app main{padding:18px}
+}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:55}
+.overlay.show{opacity:1;pointer-events:auto}
+
+
+  /* ... all your existing CSS above ... */
+
+  /* send button icon color */
+  .send-btn i {
+    font-size: 18px;
+    color: var(--primary); /* default color uses --primary, which changes with theme */
+  }
+
+  /* force white color in dark mode */
+  [data-theme="dark"] .send-btn i {
+    color: #ffffff;
+  }
+
+  /* theme icon color */
+  [data-theme="dark"] #themeIcon {
+    stroke: #ffffff; /* white color in dark mode */
+  }
+
+  [data-theme="light"] #themeIcon {
+    stroke: #111827; /* dark color in light mode */
+  }
+
+
+
+</style>
+</head>
+<body data-theme="dark">
+<div class="app" id="app">
+  <header>
+    <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
+      <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect y="1" width="18" height="2" rx="1" fill="currentColor"/>
+        <rect y="6" width="18" height="2" rx="1" fill="currentColor"/>
+        <rect y="11" width="18" height="2" rx="1" fill="currentColor"/>
+      </svg>
+    </button>
+
+    <div class="title">Unidesk</div>
+
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-pressed="true">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <aside id="sidebar" aria-label="Chat sidebar">
+    <button class="new-chat" id="newChat">+ New Chat</button>
+    <div class="chats" id="chatList" aria-live="polite">
+      <div class="chat-item" data-id="1">
+        <div class="title">Where is the canteen?</div>
+        <div class="meta">2 messages</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="messages" id="messages" aria-live="polite" role="log" aria-relevant="additions">
+    </div>
+  </main>
+
+  <div class="input-bar" id="inputBar">
+    <div class="input-wrapper">
+      <input type="text" id="messageInput" class="input" placeholder="Message Unidesk..." aria-label="Message" />
+      <button class="mic-inside" id="micBtn" title="Speak">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
+    </div>
+    <button class="send-btn" id="sendBtn" title="Send">
+        <i class="fas fa-paper-plane"></i>
+
+    </button>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+</div>
+
+<script>
+(function(){
+  const body = document.body;
+  const themeToggle = document.getElementById('themeToggle');
+  const hamburger = document.getElementById('hamburger');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const newChat = document.getElementById('newChat');
+  const chatList = document.getElementById('chatList');
+  const messagesEl = document.getElementById('messages');
+  const input = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const micBtn = document.getElementById('micBtn');
+
+  let dark = true;
+  function setTheme(d){
+    dark = d;
+    body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    themeToggle.setAttribute('aria-pressed', String(dark));
+  }
+  setTheme(true);
+
+  themeToggle.addEventListener('click', ()=>{ setTheme(!dark); });
+
+  function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+  hamburger.addEventListener('click', ()=>{ if (sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); });
+  overlay.addEventListener('click', closeSidebar);
+
+  newChat.addEventListener('click', ()=>{
+    addChatItem('New Chat', 0);
+    if (window.innerWidth <= 880) closeSidebar();
+    messagesEl.innerHTML = '';
+  });
+
+  function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function addChatItem(title, msgCount){
+    const id = Date.now();
+    const node = document.createElement('div');
+    node.className = 'chat-item';
+    node.setAttribute('data-id', id);
+    node.innerHTML = '<div class="title">'+escapeHtml(title)+'</div><div class="meta">'+msgCount+' messages</div>';
+    chatList.prepend(node);
+    node.addEventListener('click', ()=>{
+      messagesEl.innerHTML = '';
+      addBotMessage('I received your message: "'+title+'". Demo response.');
+      if (window.innerWidth <= 880) closeSidebar();
+    });
+  }
+
+  function addUserMessage(text){
+    const row = document.createElement('div');
+    row.className = 'msg-row msg-user';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble user';
+    bubble.innerHTML = '<p>'+escapeHtml(text)+'</p>';
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function addBotMessage(text){
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble bot';
+    bubble.innerHTML = '<p>'+escapeHtml(text)+'</p>';
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function sendMessage(){
+    const v = input.value.trim();
+    if (!v) return;
+    addUserMessage(v);
+    input.value = '';
+    const firstChat = chatList.querySelector('.chat-item');
+    if (!firstChat) addChatItem(v, 1);
+    setTimeout(()=> { addBotMessage('I received your message: "'+v+'". Demo response.'); }, 600);
+    if (window.innerWidth <= 880) closeSidebar();
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') sendMessage(); });
+
+  micBtn.addEventListener('click', ()=>{
+    input.value = 'Where is the canteen?';
+    sendMessage();
+  });
+
+  window.addEventListener('resize', ()=>{ if (window.innerWidth > 880){ closeSidebar(); } });
+  document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape'){ closeSidebar(); } });
+
+})();
+</script>
+</body>
+</html>
